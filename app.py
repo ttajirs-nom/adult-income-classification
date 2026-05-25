@@ -1,5 +1,9 @@
 import streamlit as st
-import requests
+import pandas as pd
+import joblib
+
+# Load model
+model = joblib.load("model.pkl")
 
 st.title("Adult Income Prediction App")
 
@@ -19,28 +23,25 @@ capital_loss = st.number_input("Capital Loss", 0, 99999, 0)
 hours_per_week = st.number_input("Hours per Week", 1, 100, 40)
 native_country = st.selectbox("Native Country", ["United-States", "India"])
 
-# Predict button
 if st.button("Predict"):
-    data = {
+
+    input_data = pd.DataFrame([{
         "age": age,
         "workclass": workclass,
         "fnlwgt": fnlwgt,
         "education": education,
-        "educational_num": educational_num,
-        "marital_status": marital_status,
+        "educational-num": educational_num,
+        "marital-status": marital_status,
         "occupation": occupation,
         "relationship": relationship,
         "race": race,
         "gender": gender,
-        "capital_gain": capital_gain,
-        "capital_loss": capital_loss,
-        "hours_per_week": hours_per_week,
-        "native_country": native_country
-    }
+        "capital-gain": capital_gain,
+        "capital-loss": capital_loss,
+        "hours-per-week": hours_per_week,
+        "native-country": native_country
+    }])
 
-    response = requests.post("http://127.0.0.1:8000/predict", json=data)
+    prediction = model.predict(input_data)
 
-    if response.status_code == 200:
-        st.success(f"Prediction: {response.json()['prediction']}")
-    else:
-        st.error("Error in prediction")
+    st.success(f"Prediction: {prediction[0]}")
